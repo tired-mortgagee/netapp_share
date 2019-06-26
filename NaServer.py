@@ -39,6 +39,7 @@ else :
     httplib = http.client
 	
 #dtd files
+ssl._create_default_https_context = ssl._create_unverified_context
 FILER_dtd = "file:/etc/netapp_filer.dtd"
 DFM_dtd = "file:/etc/netapp_dfm.dtd"
 AGENT_dtd = "file:/etc/netapp_agent.dtd"
