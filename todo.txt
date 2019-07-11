@@ -1,6 +1,3 @@
 - dyanamic width on manila-style output
-- extend / shrink
 - snapshot create / list / delete
-- share-export-location-list
 - access-list / access-delete
-- password file
