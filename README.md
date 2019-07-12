@@ -28,15 +28,25 @@ file procedures.md in this repo.
 For example, to create a NFS share called "mytest" with a size of 10GB using certificate authentication run the following command.
 
 ` ./netapp_share.py create -cert vsadmin.pem,vsadmin.key mytest 10 value mysvm.domain.local`
+
 `+------------------------------------+------------------------------------------------------------------------+`
+
 `| Property                           | Value                                                                  |`
+
 `+------------------------------------+------------------------------------------------------------------------+`
+
 `| status                             | available                                                              |`
+
 `| export_locations                   | path = 10.0.0.5:/841b0820-a453-11e9-8845-0050569d4dd9                  |`
+
 `|                                    | share_instance_id = 841b0820-a453-11e9-8845-0050569d4dd9               |`
+
 `| size                               | 10                                                                     |`
+
 `| name                               | mytest                                                                 |`
+
 `| extra-specs                        | tier = value tier                                                      |`
+
 `+------------------------------------+------------------------------------------------------------------------+`
 
 The 'tier' in the above example refers to the backend disk type being used. In out platform, 'value' refers to a tier that
@@ -53,11 +63,17 @@ The following example shows how to list all of the shares currently provisioned 
 `login as: vsadmin`
 `Password: ************`
 `+----------------------------------------------+----------------+-----------+`
+
 `| ID                                           | Name           | Size      |`
+
 `+----------------------------------------------+----------------+-----------+`
+
 `| share_841b0820_a453_11e9_8845_0050569d4dd9   | mytest         | 10        |`
+
 `| share_a7655a20_a39e_11e9_8d25_0050569d4dd9   | quack          | 10        |`
+
 `+----------------------------------------------+----------------+-----------+`
+
 
 
 
