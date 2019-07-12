@@ -26,29 +26,19 @@ matches the user on the SVM (i.e. vsadmin). There is a procedure that describes 
 file procedures.md in this repo.
 
 For example, to create a NFS share called "mytest" with a size of 10GB using certificate authentication run the following command.
-
+<pre>
 ` ./netapp_share.py create -cert vsadmin.pem,vsadmin.key mytest 10 value mysvm.domain.local`
-
 `+------------------------------------+------------------------------------------------------------------------+`
-
 `| Property                           | Value                                                                  |`
-
 `+------------------------------------+------------------------------------------------------------------------+`
-
 `| status                             | available                                                              |`
-
 `| export_locations                   | path = 10.0.0.5:/841b0820-a453-11e9-8845-0050569d4dd9                  |`
-
 `|                                    | share_instance_id = 841b0820-a453-11e9-8845-0050569d4dd9               |`
-
 `| size                               | 10                                                                     |`
-
 `| name                               | mytest                                                                 |`
-
 `| extra-specs                        | tier = value tier                                                      |`
-
 `+------------------------------------+------------------------------------------------------------------------+`
-
+</pre>
 The 'tier' in the above example refers to the backend disk type being used. In out platform, 'value' refers to a tier that
 uses SAS drives and 'capacity' refers to a tier that uses NL-SAS drives. In this example the SVM IP address is 10.0.0.5 and 
 your /etc/hosts file has been updated to resolve mysvm.domain.local to this address.
