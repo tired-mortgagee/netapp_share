@@ -7,7 +7,7 @@ and that the password of the 'vsadmin' user has been delivered to you.
 The first thing that you need to run on each SVM is netapp_init.py. This initialises the SVM (enabled the NFS daemon for example). 
 This only needs to be executed once. You will be prompted to change the password.
 <pre>
-./netapp_init.py <SVM_IP> vsadmin
+./netapp_init.py SVM_IP vsadmin
 </pre>
 Now you can run the netapp_share.py script. This script implements the following OpenStack Manila commands in as similar a way as 
 is practical to the NetApp ONTAP Manila driver in OpenStack.
