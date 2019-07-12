@@ -75,7 +75,7 @@ Password: PASS
 4. Install the certificate. Paste the output of the CERT_PEM file from step two and then press enter. 
 <pre>
 security certificate install -type client-ca
-Please enter Certificate: Press <<Enter>> when done
+Please enter Certificate: Press Enter when done
 -----BEGIN CERTIFICATE-----
 MIIDaTCCAlGgAwIBAgIJAL8rRcoZCb6eMA0GCSqGSIb3DQEBCwUAMEsxCzAJBgNV
 BAYTAlVTMQswCQYDVQQIDAJOQzEMMAoGA1UEBwwDUlRQMQ8wDQYDVQQKDAZOZXRB
