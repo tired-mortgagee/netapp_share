@@ -27,7 +27,7 @@ file procedures.md in this repo.
 
 For example, to create a NFS share called "mytest" with a size of 10GB using certificate authentication run the following command.
 <pre>
- ./netapp_share.py create -cert vsadmin.pem,vsadmin.key mytest 10 value mysvm.domain.local`
+ ./netapp_share.py create -cert vsadmin.pem,vsadmin.key mytest 10 value mysvm.domain.local
 +------------------------------------+------------------------------------------------------------------------+
 | Property                           | Value                                                                  |
 +------------------------------------+------------------------------------------------------------------------+
@@ -42,6 +42,11 @@ For example, to create a NFS share called "mytest" with a size of 10GB using cer
 The 'tier' in the above example refers to the backend disk type being used. In out platform, 'value' refers to a tier that
 uses SAS drives and 'capacity' refers to a tier that uses NL-SAS drives. In this example the SVM IP address is 10.0.0.5 and 
 your /etc/hosts file has been updated to resolve mysvm.domain.local to this address.
+
+You next need to update the IP ACL on the share. This example permits access to all hosts in the 192.168.10.0/24 range.
+<pre>
+ ./netapp_share.py access_allow -cert vsadmin.pem,vsadmin.key mytest ip 192.168.10.0/24 mysvm.domain.local
+</pre>
 
 You can now mount the NFS share on your client. Don't forget to update /etc/fstab.
 <pre>
