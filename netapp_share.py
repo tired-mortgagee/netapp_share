@@ -6,7 +6,7 @@
 ## NetApp Share Provisioning Script - Similar to Share Provisioning in OpenStack Manila
 ##
 ## tired.mortgagee@gmail.com
-## v0.3 2019.08.19
+## v0.4 2019.08.19
 ## change log at bottom of this file
 ##
 ## current limitations
