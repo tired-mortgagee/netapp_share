@@ -6,11 +6,11 @@
 ## NetApp Share Provisioning Script - Similar to Share Provisioning in OpenStack Manila
 ##
 ## tired.mortgagee@gmail.com
-## v0.3 2019.07.11
+## v0.3 2019.08.19
 ## change log at bottom of this file
 ##
 ## current limitations
-## - only create, list, delete, access_allow, extend, shrink, quota_show, and show commands
+## - only create, list, delete, access_allow, extend, shrink, quota_show, show, access_list, and access_deny commands
 ## - selects the first suitable aggregate only
 ## - only nfs
 ##
@@ -854,4 +854,6 @@ ns_args.func(ns_args)
 ##              Added extend, shrink, quota_show, and show commands
 ##              Added tenant quota function
 ##              Updated delete command to remove export-policies
+## 2019.08.19   Addded access_deny and access_list commands
+##              Fixed issue with using hostnames without DNS suffix
 ##
