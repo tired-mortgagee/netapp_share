@@ -15,6 +15,8 @@ is practical to the NetApp ONTAP Manila driver in OpenStack.
 * delete (delete a share)
 * list (lists all existing shares on the SVM)
 * access_allow (allow access to the share from an IP range)
+* access_deny (remove access to the share for an IP range)
+* access_list (list the access for a particular share)
 * extend (increase the size of an existing share)
 * shrink (decrease the size of an existing share)
 * quota_show (show the provisioning quota in GB for the tenant in this SVM)
@@ -66,8 +68,6 @@ Password: ************
 </pre>
 
 Future commands to be implemeneted
-* access_deny
-* access_list
 * snapshot_create
 * snapshot_delete
 * snapshot_list

@@ -20,12 +20,12 @@
 ### imports / includes
 ###
 
-import argparse
-import re
-import sys
 from NaServer import *
-import uuid
+import argparse
 import getpass
+import uuid
+import sys
+import re
 
 #####
 ##### procedure connect_svm
@@ -34,7 +34,7 @@ import getpass
 def connect_svm(in_args):
 
    # type and syntax checking on command line args
-   obj_regexp = re.compile(r'^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$|^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$')
+   obj_regexp = re.compile(r'^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$|^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](\.[a-zA-Z0-9\-]{2,}){0,6}$')
    if (not(obj_regexp.match(in_args.svm))):
       sys.exit("error: the svm parameter must be either an IP address or a hostname")
 
@@ -646,6 +646,127 @@ def show_share(in_args):
    print "+------------------------------------+----------------------------------------------------------------------------------+"
 
 #####
+##### procedure access_list
+#####
+
+def access_list_share(in_args):
+
+   # type and syntax checking on command line args
+   obj_regexp = re.compile(r'[ \*#"><\|\?\\]')
+   if (obj_regexp.search(in_args.name)):
+      sys.exit("error 0x901: the name parameter cannot contain the characters ' *#\"><|?\\'")
+   if ((len(in_args.name)<1) or (len(in_args.name)>255)):
+      sys.exit("error 0x902: the name parameter must contain between 1 and 255 characters")
+
+   obj_svm = connect_svm(in_args)
+
+   # find the share
+   obj_volume_get = NaElement("volume-get-iter")
+   obj_desired_attributes = NaElement("query")
+   obj_volume_attributes = NaElement("volume-attributes")
+   obj_volume_id_attributes = NaElement("volume-id-attributes")
+   obj_volume_id_attributes.child_add_string("comment",in_args.name)
+   obj_volume_attributes.child_add(obj_volume_id_attributes)
+   obj_desired_attributes.child_add(obj_volume_attributes)
+   obj_volume_get.child_add(obj_desired_attributes)
+   obj_volume_get.child_add_string("max-records","10000")
+   result = obj_svm.invoke_elem(obj_volume_get)
+   if(result.results_status() == "failed"):
+      sys.exit("error 0x903: cannot execute api; " + result.results_reason())
+   if(result.child_get_int("num-records")<1):
+       sys.exit("error 0x904: share with name " + in_args.name + " is not found")
+   if(result.child_get_int("num-records")>1):
+      sys.exit("error 0x905: more than one share with name " + in_args.name + " is found")
+   volume = (result.child_get("attributes-list").children_get())[0]
+   if(volume.child_get("volume-export-attributes").child_get_string("policy") is None):
+      sys.exit("error 0x906: export-policy object could not be found")
+
+   #print "DEBUG policy name: " + volume.child_get("volume-export-attributes").child_get_string("policy")
+   
+   obj_rule_get = NaElement("export-rule-get-iter")
+   obj_desired_attributes = NaElement("query")
+   obj_policy_attributes = NaElement("export-rule-info")
+   obj_policy_attributes.child_add_string("policy-name",volume.child_get("volume-export-attributes").child_get_string("policy"))
+   obj_desired_attributes.child_add(obj_policy_attributes)
+   obj_rule_get.child_add(obj_desired_attributes)
+   obj_rule_get.child_add_string("max-records","10000")
+   result = obj_svm.invoke_elem(obj_rule_get)
+   if(result.results_status() == "failed"):
+      sys.exit("error 0x907: cannot execute api; " + result.results_reason())
+   if(result.child_get_int("num-records")<1):
+      sys.exit("error 0x908: export-policy with name " + volume.child_get("volume-id-attributes").child_get_string("name") + " is not found")
+
+   #print "DEBUG number of rules: " + str(result.child_get_int("num-records"))
+
+   print "+----------+-------------+--------------------+--------------+--------+"
+   print "| id       | access_type | access_to          | access_level | state  |"
+   print "+----------+-------------+--------------------+--------------+--------+"
+   for rule in result.child_get("attributes-list").children_get():
+      sys.stdout.write("| " + str(rule.child_get_int("rule-index")) + (9-len(str(rule.child_get_int("rule-index"))))*" ")
+      sys.stdout.flush()
+      sys.stdout.write("| ip          | " + rule.child_get_string("client-match") + (19-len(rule.child_get_string("client-match")))*" ")
+      sys.stdout.flush()
+      sys.stdout.write("| rw           | active |")
+      print ""
+   print "+----------+-------------+--------------------+--------------+--------+"
+  
+#####
+##### procedure access_deny
+#####
+
+def access_deny_share(in_args):
+
+   # type and syntax checking on command line args
+   obj_regexp = re.compile(r'[ \*#"><\|\?\\]')
+   if (obj_regexp.search(in_args.name)):
+      sys.exit("error 0xA01: the name parameter cannot contain the characters ' *#\"><|?\\'")
+   if ((len(in_args.name)<1) or (len(in_args.name)>255)):
+      sys.exit("error 0xA02: the name parameter must contain between 1 and 255 characters")
+   try:
+      int(in_args.id)
+   except:
+      sys.exit("error 0xA03: the id parameter must be an integer")
+
+   obj_svm = connect_svm(in_args)
+
+   # find the share 
+   obj_volume_get = NaElement("volume-get-iter")
+   obj_desired_attributes = NaElement("query")
+   obj_volume_attributes = NaElement("volume-attributes")
+   obj_volume_id_attributes = NaElement("volume-id-attributes")
+   obj_volume_id_attributes.child_add_string("comment",in_args.name)
+   obj_volume_attributes.child_add(obj_volume_id_attributes)
+   obj_desired_attributes.child_add(obj_volume_attributes)
+   obj_volume_get.child_add(obj_desired_attributes)
+   obj_volume_get.child_add_string("max-records","10000")
+   result = obj_svm.invoke_elem(obj_volume_get)
+   if(result.results_status() == "failed"):
+      sys.exit("error 0xA04: cannot execute api; " + result.results_reason())
+   if(result.child_get_int("num-records")<1):
+      sys.exit("error 0xA05: share with name " + in_args.name + " is not found")
+   if(result.child_get_int("num-records")>1):
+      sys.exit("error 0xA06: more than one share with name " + in_args.name + " is found")
+   volume = (result.child_get("attributes-list").children_get())[0]
+   if(volume.child_get("volume-export-attributes").child_get_string("policy") is None):
+      sys.exit("error 0xA07: export-policy object could not be found")
+
+   # find the export-policy and rule
+   obj_rule_get = NaElement("export-rule-destroy")
+   #obj_desired_attributes = NaElement("query")
+   #obj_policy_attributes = NaElement("export-rule-info")
+   #obj_policy_attributes.child_add_string("policy-name",volume.child_get("volume-export-attributes").child_get_string("policy"))
+   #obj_policy_attributes.child_add_string("rule-index",str(in_args.id))
+   #obj_desired_attributes.child_add(obj_policy_attributes)
+   #obj_rule_get.child_add(obj_desired_attributes)
+   obj_rule_get.child_add_string("policy-name",volume.child_get("volume-export-attributes").child_get_string("policy"))
+   obj_rule_get.child_add_string("rule-index",str(in_args.id))
+
+   result = obj_svm.invoke_elem(obj_rule_get)
+   if(result.results_status() == "failed"):
+      sys.exit("error 0xA08: cannot execute api; " + result.results_reason())
+   
+
+#####
 ##### main
 #####
 
@@ -705,6 +826,17 @@ show_share_parser.add_argument("name", help="the name of the existing share")
 show_share_parser.add_argument("svm", help="the hostname or the IP address of the NetApp SVM")
 show_share_parser.add_argument("-cert","--cert",nargs='?',type=pair,metavar='cert_file,key_file',help="(optional) pem and key file for cert-based auth")
 show_share_parser.set_defaults(func=show_share)
+access_list_parser = subparsers.add_parser("access_list")
+access_list_parser.add_argument("name", help="the name of the existing share")
+access_list_parser.add_argument("svm", help="the hostname or the IP address of the NetApp SVM")
+access_list_parser.add_argument("-cert","--cert",nargs='?',type=pair,metavar='cert_file,key_file',help="(optional) pem and key file for cert-based auth")
+access_list_parser.set_defaults(func=access_list_share)
+access_deny_parser = subparsers.add_parser("access_deny")
+access_deny_parser.add_argument("name", help="the name of the existing share")
+access_deny_parser.add_argument("id", help="the access rule to be deleted")
+access_deny_parser.add_argument("svm", help="the hostname or the IP address of the NetApp SVM")
+access_deny_parser.add_argument("-cert","--cert",nargs='?',type=pair,metavar='cert_file,key_file',help="(optional) pem and key file for cert-based auth")
+access_deny_parser.set_defaults(func=access_deny_share)
 
 ns_args = parser.parse_args()
 ns_args.func(ns_args)

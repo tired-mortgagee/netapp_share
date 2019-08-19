@@ -1,3 +1,2 @@
 - dyanamic width on manila-style output
 - snapshot create / list / delete
-- access-list / access-delete
